@@ -25,8 +25,7 @@ export default function Success() {
         }
       });
   }, []);
-  console.log(data);
-  console.log(dataWithTime);
+
   if (data.length !== 0) {
     axios
       .post("http://localhost:5000/order-Items", {
@@ -40,23 +39,23 @@ export default function Success() {
           console.log("error occured while posting order");
         }
       });
+    axios
+      .post("http://localhost:5000/cartItems", {
+        data: [],
+        currentUserAuthToken,
+      })
+      .then((result) => {
+        if (result.data.Success === "true") {
+          dispatch(setCart([]));
+          console.log("Cart posted to backend");
+        } else {
+          console.log("error occured while placing order");
+        }
+      });
   }
 
   React.useEffect(() => {
     setTimeout(() => {
-      axios
-        .post("http://localhost:5000/cartItems", {
-          data: [],
-          currentUserAuthToken,
-        })
-        .then((result) => {
-          if (result.data.Success === "true") {
-            console.log("Cart posted to backend");
-          } else {
-            console.log("error occured while placing order");
-          }
-        });
-
       navigate("/");
     }, 5000);
   }, []);
