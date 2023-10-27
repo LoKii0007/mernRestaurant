@@ -7,8 +7,19 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const { MongoClient } = require("mongodb");
 const stripe = require("stripe")(process.env.STRIPE_KEY);
+const nodemailer = require("nodemailer");
+
+// email config
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
+  },
+});
 
 const user = require("../models/User");
+const userotp = require("../models/userOTP");
 
 const saltRounds = 10;
 
@@ -165,25 +176,92 @@ router.post("/loginuser", async (req, res) => {
   const { email, password } = req.body;
   const findQuery = { email: email };
   const emailFind = await findUser(findQuery);
+  console.log(password);
 
   if (emailFind) {
     var checkEncryptedPassword = await bcrypt.compare(
       password,
       emailFind.password
     );
-    if (checkEncryptedPassword) {
+    console.log(checkEncryptedPassword);
+    if (checkEncryptedPassword == true) {
       res.json({
-        Success: "true",
+        Success: true,
         AuthToken: emailFind.tokens.token,
         user: emailFind,
       });
     } else {
       console.log("Match not found");
-      res.json({ Success: "false" });
+      res.json({ Success: false });
     }
   } else {
     console.log("Match not found");
-    res.json({ Success: "false" });
+    res.json({ Success: false });
+  }
+});
+
+router.post("/user/sendotp", async (req, res) => {
+  const query = { email: req.body.email };
+  const emailFind = await findUser(query);
+
+  const UserFound = await findUser(query);
+  if (UserFound) {
+    const OTP = Math.floor(100000 + Math.random() * 900000);
+    const existEmail = await userotp.findOne({ email: req.body.email });
+
+    if (existEmail) {
+      const updateData = await userotp.updateOne(
+        { email: req.body.email },
+        { $set: { otp: OTP } },
+        { new: true }
+      );
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: "Sending EMAIL for OTP Validation",
+        text: `OTP: ${OTP}`,
+      };
+      await transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Email Sent");
+        }
+      });
+      res.send({
+        Success: true,
+        user: emailFind,
+        AuthToken: emailFind.tokens.token,
+        otp: OTP,
+      });
+    } else {
+      const saveOtpData = new userotp({
+        email: req.body.email,
+        otp: OTP,
+      });
+      await saveOtpData.save();
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: "Sending EMAIL for OTP Validation",
+        text: `OTP: ${OTP}`,
+      };
+      await transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Email Sent");
+        }
+      });
+      res.send({
+        Success: true,
+        user: emailFind,
+        AuthToken: emailFind.tokens.token,
+        otp: OTP,
+      });
+    }
+  } else {
+    res.send({ Success: false });
   }
 });
 
