@@ -12,7 +12,6 @@ export default function Card(props) {
   const dispatch = useDispatch();
 
   function addNewCart(foodItem) {
-    console.log(foodItem);
     toast.success("Item added to cart");
     dispatch(addToCart(foodItem));
   }

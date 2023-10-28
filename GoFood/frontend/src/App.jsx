@@ -11,6 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Success from "./screens/Success";
 import Cancel from "./screens/Cancel";
 import MyOrder from "./screens/MyOrder";
+import Profile from "./screens/Profile";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
         <Route path="/myorder" element={<MyOrder />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       <Toaster />
     </Router>

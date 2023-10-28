@@ -31,18 +31,6 @@ export default function Cart() {
       });
   }
 
-  if (data.length !== 0) {
-    axios
-      .post("http://localhost:5000/cartItems", { data, currentUserAuthToken })
-      .then((result) => {
-        if (result.data.Success === "true") {
-          console.log("Cart posted to backend");
-        } else {
-          console.log("error occured while placing order");
-        }
-      });
-  }
-
   async function makePayment() {
     const stripe = await loadStripe(
       "pk_test_51O16qiSBdH4uYdkWOeS0zS4REySu3MmnRpO4gD7Uycx23DPPqQe04DwcZ3o5lTRDq5W6fiL6mINwoVjJI1xTKG5s00kiiGDAYq"
@@ -60,7 +48,17 @@ export default function Cart() {
         }
       });
   }
-
+  if (data.length !== 0) {
+    axios
+      .post("http://localhost:5000/cartItems", { data, currentUserAuthToken })
+      .then((result) => {
+        if (result.data.Success === "true") {
+          console.log("Cart posted to backend");
+        } else {
+          console.log("error occured while placing order");
+        }
+      });
+  }
   React.useEffect(() => {
     axios
       .post("http://localhost:5000/cartUser", { currentUserAuthToken })
