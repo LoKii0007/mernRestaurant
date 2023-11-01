@@ -33,36 +33,6 @@ mongoose
     console.log(err);
   });
 
-const client = new MongoClient(uri);
-
-const dbName = "gofoodmern";
-const users_collection = "users";
-const food_items_collection = "food_items";
-const food_category_collection = "food_category";
-
-const database = client.db(dbName);
-const usersCollection = database.collection(users_collection);
-const foodItemsCollection = database.collection(food_items_collection);
-const foodCategoryCollection = database.collection(food_category_collection);
-
-async function getFoodItems() {
-  try {
-    const foodItemArray = await foodItemsCollection.find({}).toArray();
-    return foodItemArray;
-  } catch (err) {
-    console.log("Something went wrong trying to find the documents:" + err);
-  }
-}
-
-async function getFoodCategory() {
-  try {
-    const foodCategoryArray = await foodCategoryCollection.find({}).toArray();
-    return foodCategoryArray;
-  } catch (err) {
-    console.log("Something went wrong trying to find the documents:" + err);
-  }
-}
-
 async function findUser(query) {
   try {
     const userFound = await user.findOne(query);
@@ -262,35 +232,6 @@ router.post("/user/sendotp", async (req, res) => {
     }
   } else {
     res.send({ Success: false });
-  }
-});
-
-router.get("/foodItems", async (req, res) => {
-  const foodItems = await getFoodItems();
-
-  if (foodItems.length !== 0) {
-    res.send({
-      Success: "true",
-      foodItem: foodItems,
-    });
-  } else {
-    console.log("foodItems not found");
-    res.json({ Success: "false" });
-  }
-});
-
-router.get("/foodCategory", async (req, res) => {
-  const foodCategory = await getFoodCategory();
-
-  if (foodCategory.length !== 0) {
-    console.log("foodCategory found");
-    res.send({
-      Success: "true",
-      foodCategory: foodCategory,
-    });
-  } else {
-    console.log("foodCategory not found");
-    res.json({ Success: "false" });
   }
 });
 

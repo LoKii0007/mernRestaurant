@@ -3,23 +3,35 @@ const mongoose = require("mongoose");
 const foodItemsSchema = new mongoose.Schema({
   CategoryName: {
     type: String,
-    required: [true, "Enter the category name"],
+    required: true,
   },
   name: {
     type: String,
-    required: [true, "You have not entered any food name"],
+    required: true,
   },
   img: {
     type: String,
-    required: [true, "You have not entered any img url"],
+    required: true,
   },
   options: {
     type: Array,
-    required: [true, "You have not entered any options"],
+    required: true,
   },
   description: {
     type: String,
-    required: [true, "You have not entered any description"],
+    required: true,
+  },
+  qtyordered: {
+    type: String,
+    default: null,
+  },
+  size: {
+    type: String,
+    default: "",
+  },
+  price: {
+    type: String,
+    default: null,
   },
 });
 

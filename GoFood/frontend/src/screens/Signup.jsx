@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import "./Signup.css";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [passShow, setPassShow] = useState(false);
   const [credentials, setCredentials] = useState({
     name: "",
@@ -28,6 +30,7 @@ export default function Signup() {
         .then((result) => {
           if (result.data.Success === true) {
             toast.success("Successfully signed up");
+            navigate("/login");
           } else {
             toast.error("You have already signed up.\nPlease login");
           }
@@ -49,79 +52,80 @@ export default function Signup() {
   }
 
   return (
-    <>
-      <div className="container">
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              value={credentials.name}
-              onChange={onChange}
-            />
-          </div>
+    <section>
+      <div className="signupcard">
+        <h1>Sign Up</h1>
+        <div className="form">
+          <form onSubmit={handleSubmit}>
+            <span>
+              <input
+                type="text"
+                className="input-cll"
+                placeholder="Name"
+                name="name"
+                value={credentials.name}
+                onChange={onChange}
+                autoComplete="off"
+              />
+              <i className="fa-solid fa-envelope icon" />
+            </span>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
-              name="email"
-              value={credentials.email}
-              onChange={onChange}
-            />
-            <div id="emailHelp" className="form-text">
+            <span>
+              <input
+                type="email"
+                className="input-cll"
+                placeholder="Email"
+                name="email"
+                value={credentials.email}
+                onChange={onChange}
+                autoComplete="off"
+              />
+              <i className="fa-solid fa-envelope icon" />
+            </span>
+            <div className="short-text">
               We'll never share your email with anyone else.
             </div>
-          </div>
 
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <input
-              type={!passShow ? "password" : "text"}
-              className="form-control"
-              id="exampleInputPassword1"
-              name="password"
-              value={credentials.password}
-              onChange={onChange}
-            />
-            <div className="showpass" onClick={() => setPassShow(!passShow)}>
-              {!passShow ? "Show" : "Hide"}
+            <span>
+              <input
+                type={!passShow ? "password" : "text"}
+                placeholder="Password"
+                className="input-cll"
+                name="password"
+                value={credentials.password}
+                onChange={onChange}
+                autoComplete="off"
+              />
+            </span>
+            <div className="showPass" onClick={() => setPassShow(!passShow)}>
+              {!passShow ? "Show Password" : "Hide Password"}
             </div>
-          </div>
 
-          <div className="mb-3">
-            <label htmlFor="Address" className="form-label">
-              Address
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="Address"
-              name="location"
-              value={credentials.location}
-              onChange={onChange}
-            />
-          </div>
+            <span>
+              <input
+                type="text"
+                className="input-cll"
+                placeholder="Location"
+                name="location"
+                value={credentials.location}
+                onChange={onChange}
+                autoComplete="off"
+              />
+              <i className="fa-solid fa-envelope icon" />
+            </span>
 
-          <button type="submit" className="m-3 btn btn-success">
-            Submit
-          </button>
-
-          <Link to="/login" className="m-3 btn btn-danger">
-            Already A User
-          </Link>
-        </form>
+            <button type="submit" className="signupbtn">
+              Submit
+            </button>
+            <p className="short-text">
+              Already have an account:{" "}
+              <Link to="/login" className="reg-link">
+                Login
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
-    </>
+    </section>
   );
 }

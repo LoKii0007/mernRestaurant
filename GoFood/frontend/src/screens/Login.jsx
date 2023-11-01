@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
+import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,16 +32,20 @@ export default function Login() {
         .post("http://localhost:5000/loginuser", { email, password })
         .then((result) => {
           if (result.data.Success === true) {
-            navigate("/");
             localStorage.setItem(
               "currentUser",
               JSON.stringify(result.data.user)
             );
-            console.log(JSON.parse(localStorage.getItem("currentUser")));
+            localStorage.setItem("Admin", result.data.user.isAdmin);
+            console.log(result.data.user.isAdmin);
+            if (result.data.user.isAdmin === true) {
+              navigate("/admin");
+            } else {
+              navigate("/");
+            }
             localStorage.setItem("authToken", result.data.AuthToken);
-            console.log(localStorage.getItem("authToken"));
           } else {
-            alert("Register First");
+            toast.error("Please Register First");
           }
         });
 
@@ -64,7 +70,7 @@ export default function Login() {
   function sendOTP(event) {
     const { email } = loginCredentials;
     if (!email) {
-      alert("Please fill in the email address");
+      toast.error("Please fill in the email address");
     } else {
       axios
         .post("http://localhost:5000/user/sendotp", { email })
@@ -73,139 +79,152 @@ export default function Login() {
             localStorage.setItem("OTP", JSON.stringify(result.data.otp));
             setCurrentUser(result.data.user);
             setAuthToken(result.data.AuthToken);
+            setLoginViaPassword(false);
+            setLoginViaOTP(false);
+            setEnterOTP(true);
           } else {
-            alert("Register First");
+            toast.error("You have not registered yet.\n Please Register First");
           }
         });
     }
-    setLoginViaPassword(false);
-    setLoginViaOTP(false);
-    setEnterOTP(true);
   }
 
   function verifyOTP(event) {
     event.preventDefault();
     if (otp === localStorage.getItem("OTP")) {
       navigate("/");
+      localStorage.setItem("Admin", result.data.user.isAdmin);
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
       localStorage.setItem("authToken", JSON.stringify(authToken));
     } else {
-      alert("wrong otp");
+      toast.error("wrong otp");
     }
   }
 
   if (loginViaPassword) {
     return (
-      <div className="container">
-        <form onSubmit={handlePasswordSubmit}>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
-              name="email"
-              value={loginCredentials.email}
-              onChange={onChange}
-            />
+      <section>
+        <div className="logincard">
+          <h1>Login</h1>
+          <div className="form">
+            <form onSubmit={handlePasswordSubmit}>
+              <span>
+                <input
+                  placeholder="Email"
+                  type="email"
+                  className="input-cll"
+                  name="email"
+                  value={loginCredentials.email}
+                  onChange={onChange}
+                  autoComplete="off"
+                />
+                <i className="fa-solid fa-envelope icon" />
+              </span>
+              <br />
+              <span>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="input-cll"
+                  name="password"
+                  value={loginCredentials.password}
+                  onChange={onChange}
+                  autoComplete="off"
+                />
+                <i className="fa-solid fa-envelope icon" />
+              </span>
+
+              <div>
+                <div
+                  className="link"
+                  onClick={() => {
+                    setLoginViaPassword(false);
+                    setLoginViaOTP(true);
+                  }}
+                >
+                  <small className="linkForgotPassword">Forgot Password</small>
+                </div>
+              </div>
+              <button type="submit" className="loginbtn">
+                Login
+              </button>
+              <p className="short-text">
+                Don't have an account?{" "}
+                <Link to="/createuser" className="reg-link">
+                  Register
+                </Link>
+              </p>
+            </form>
           </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="exampleInputPassword1"
-              name="password"
-              value={loginCredentials.password}
-              onChange={onChange}
-            />
-          </div>
-          <div>
-            <small
-              onClick={() => {
-                setLoginViaPassword(false);
-                setLoginViaOTP(true);
-              }}
-            >
-              Forgot Password
-            </small>
-          </div>
-          <button type="submit" className="m-3 btn btn-success">
-            Login
-          </button>
-          <Link to="/createuser" className="m-3 btn btn-danger">
-            Have Not Registered
-          </Link>
-        </form>
-      </div>
+        </div>
+      </section>
     );
   } else if (loginViaOTP) {
     return (
-      <div className="container">
-        <form>
-          <div className="mb-3">
-            <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
-            </label>
-            <input
-              type="email"
-              className="form-control"
-              id="exampleInputEmail1"
-              name="email"
-              value={loginCredentials.email}
-              onChange={onChange}
-            />
+      <section>
+        <div className="logincard">
+          <h1>Password Assistance</h1>
+          <div className="form">
+            <form>
+              <span>
+                <input
+                  type="email"
+                  placeholder="Enter Your Email"
+                  className="input-cll"
+                  name="email"
+                  value={loginCredentials.email}
+                  onChange={onChange}
+                  autoComplete="off"
+                />
+                <i className="fa-solid fa-lock icon" />
+              </span>
+              <button type="button" onClick={sendOTP} className="loginbtn">
+                Send OTP
+              </button>
+              <p className="short-text">
+                Don't have an account?{" "}
+                <Link to="/createuser" className="reg-link">
+                  Register
+                </Link>
+              </p>
+            </form>
           </div>
-          <button
-            type="button"
-            onClick={sendOTP}
-            className="m-3 btn btn-success"
-          >
-            Send OTP
-          </button>
-          <Link to="/createuser" className="m-3 btn btn-danger">
-            Have Not Registered
-          </Link>
-        </form>
-      </div>
+        </div>
+      </section>
     );
   } else if (enterOTP) {
     return (
-      <div className="container">
-        <form>
-          <div className="mb-3">
-            <label htmlFor="exampleInputOTP" className="form-label">
-              OTP
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="exampleInputOTP"
-              name="otp"
-              value={otp}
-              onChange={onOTPChange}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={verifyOTP}
-            className="m-3 btn btn-success"
-          >
-            Verify OTP
-          </button>
-          <button
-            type="button"
-            onClick={sendOTP}
-            className="m-3 btn btn-success"
-          >
-            Resend OTP
-          </button>
-        </form>
-      </div>
+      <section>
+        <div className="logincard">
+          <h1>Verification Required</h1>
+          <form onSubmit={verifyOTP}>
+            <span>
+              <input
+                type="text"
+                className="input-cll"
+                placeholder="Enter the OTP"
+                name="otp"
+                value={otp}
+                onChange={onOTPChange}
+                autoComplete="off"
+              />
+              <i className="fa-solid fa-envelope icon" />
+            </span>
+            <button type="submit" className="loginbtn">
+              Verify OTP
+            </button>
+            <button type="button" onClick={sendOTP} className="loginbtn">
+              Resend OTP
+            </button>
+            <p className="short-text">
+              Don't have an account?{" "}
+              <Link to="/createuser" className="reg-link">
+                Register
+              </Link>
+            </p>
+          </form>
+        </div>
+      </section>
     );
   }
 }
